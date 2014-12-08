@@ -1,4 +1,5 @@
 <?php defined('SYSPATH') or die('No direct script access.');
+
 /*
  * @package		Redis Module
  * @author      Pap Tamas
@@ -8,7 +9,8 @@
  *
  */
 
-class Kohana_Redis_Client {
+class Kohana_Redis_Client
+{
 
     /**
      * @var Redis_Client    A singleton instance
@@ -23,35 +25,34 @@ class Kohana_Redis_Client {
     /**
      * Construct
      *
-     * @param   string  $redis_group
+     * @param   string $redis_group
+     *
      * @throws  Redis_Exception
      */
     protected function __construct($redis_group = 'default')
     {
         // Get the config array
-        $config = Kohana::$config->load('redis')->get($redis_group);
+        $config = Kohana::$config->load('redis')
+                                 ->get($redis_group);
 
         // Init the redis client
-        $this->_redis = new Redis();
+        $this->_redis = new Redis;
 
         try
         {
-            $connected = $config['connection']['persistent']
-                ? $this->_redis->connect($config['connection']['hostname'], $config['connection']['port'])
-                : $this->_redis->pconnect($config['connection']['hostname'], $config['connection']['port']);
-        }
-        catch (RedisException $e)
+            $connected = $config['connection']['persistent'] ? $this->_redis->connect($config['connection']['hostname'], $config['connection']['port']) : $this->_redis->pconnect($config['connection']['hostname'], $config['connection']['port']);
+        } catch (RedisException $e)
         {
-            $connected = FALSE;
+            $connected = false;
         }
 
 
-        if ( ! $connected)
+        if (!$connected)
         {
             throw new Redis_Exception('Can not connect to redis server.');
         }
 
-        if ($config['connection']['password'] && ! $this->_redis->auth($config['connection']['password']))
+        if ($config['connection']['password'] && !$this->_redis->auth($config['connection']['password']))
         {
             throw new Redis_Exception('Can not authenticate the connection to redis server.');
         }
@@ -60,16 +61,16 @@ class Kohana_Redis_Client {
     /**
      * Returns a singleton instance of the class
      *
-     * @return  Redis_Client
+     * @return  Redis_Client|Redis
      */
     public static function instance()
     {
-        if ( ! Redis_Client::$_instance instanceof Redis_Client)
+        if (!static::$_instance instanceof static)
         {
-            Redis_Client::$_instance = new Redis_Client();
+            static::$_instance = new static;
         }
 
-        return Redis_Client::$_instance->_redis;
+        return static::$_instance->_redis;
     }
 }
 
